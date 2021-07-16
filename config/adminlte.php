@@ -274,6 +274,11 @@ return [
         ],
         'ADMINISTRAÇÃO',
         [
+            'text' => 'Central do Entregas',
+            'url'  => 'administracao/',
+            'icon' => 'fas fa-fw fa-route',
+        ],
+        [
             'text' => 'Ctrl de Solicitações',
             'url'  => 'administracao/solicitacoes',
             'icon' => 'fas fa-fw fa-road',

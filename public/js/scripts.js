@@ -218,6 +218,7 @@ var tipo, fabricante, modelo, ano;
         minDate: new Date(),
 
     });
+    
     //Carrega os endereços pré definidos
     $("#destinos").change(function() {
         if($("#destinos").val() == "abelef"){            

@@ -22,6 +22,8 @@ class CreateUtilizacaosTable extends Migration
             $table->bigInteger('km_inicial')->nullable();
             $table->bigInteger('km_final')->nullable();
             $table->bigInteger('km_percorrido')->nullable();
+            $table->bigInteger('km_estimado')->nullable();
+            $table->bigInteger('tempo_estimado')->nullable();
             
             $table->string('cep')->nullable();
             $table->string('rua')->nullable();
@@ -32,6 +34,7 @@ class CreateUtilizacaosTable extends Migration
             $table->string('estado')->nullable();
             $table->string('endereco')->nullable();
             $table->string('coordenador_email')->nullable();
+
 
             $table->string('status');
             $table->string('token');

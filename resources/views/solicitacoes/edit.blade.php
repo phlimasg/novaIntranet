@@ -3,8 +3,8 @@
 @section('title', 'Nova Solicitação')
 
 @section('content_header')
-<a href="{{ route('controle-de-utilizacao.index') }}" class="btn btn-primary float-right"> <i class="fa fa-list"></i> Minhas solicitações</a>
-    <h1> <i class="fa fa-user-plus "></i>  Nova Solicitação</h1>
+<!--<a href="{{ route('controle-de-utilizacao.index') }}" class="btn btn-danger float-right"> <i class="fa fa-car"></i> Liberados para</a>-->
+    <h1> <i class="fa fa-pen "></i>  Editar Solicitação</h1>
 @stop
 
 @section('content')
@@ -13,13 +13,13 @@
     @csrf
     <div class="row">
         <div class="col-md-12" >
-            <div class="card card-secondary" style="">
+            <div class="card card-primary" style="">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-question-circle"></i> - O que iremos buscar/levar?</h3>                    
                 </div>
                 <div class="card-body">
                     <label for="">Descreva, em poucas palavras, o motivo da solicitação:</label>
-                    <textarea name="motivo" id="" cols="30" rows="3" class="form-control  @error('motivo') is-invalid @enderror" placeholder="Ex: Buscar uma estante e um armário no abel.">{{old('motivo')}}</textarea>
+                    <textarea name="motivo" id="" cols="30" rows="3" class="form-control  @error('motivo') is-invalid @enderror" placeholder="Ex: Buscar uma estante e um armário no abel.">{{empty(old('motivo'))?$solicitacao->motivo:old('motivo')}}</textarea>
                     @error('motivo')
                         <small class="text-danger">{{$message}}</small>
                     @enderror
@@ -29,7 +29,7 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <div class="card card-secondary">
+            <div class="card card-primary">
                 <div class="card-header">
                     <h5 class="card-title"><i class="fas fa-calendar-week"></i> - Qual o prazo?</h5>
                 </div>
@@ -41,7 +41,7 @@
                                 <div class="form-group">
                                     <div class="row">
                                         <div class="col-md-12">
-                                            <input type="text" value="{{old('data')}}" name="data" id="datetimepicker" hidden>
+                                            <input type="text" value="{{empty(old('data'))?$solicitacao->dt_entrega:old('data')}}" name="data" id="datetimepickerupdate" hidden>
                                             @error('data')
                                                 <small class="text-danger">{{$message}}</small>
                                             @enderror
@@ -58,11 +58,11 @@
     </div>
     <h4>Selecione o veículo mais adequado pra você:</h4>
     <div class="row">
-        <input type="text" name="veiculo_id" id="veiculo_id" value="" style="display: none" >
+        <input type="text" name="veiculo_id" id="veiculo_id" value="{{$solicitacao->veiculo_id}}" style="display: none" >
         @forelse ($veiculos as $i)
         
         <div class="col-md-4">
-            <div class="card card-secondary" id="veiculo{{$i->id}}">
+            <div class="card card-primary" id="veiculo{{$i->id}}">
                 <div class="card-header">
                     <h3 class="card-title"> <i class="fa fa-truck"></i> - {{$i->modelo}}</h3>
                 </div>
@@ -179,16 +179,24 @@
 @endif  
     <script> 
     $("#modalLoading").modal("show");
-        var veiculo_selecionado = null;
+    var veiculo_selecionado = null;
+    if($("#veiculo_id").val() > 0){
+        var carro = "veiculo"+$("#veiculo_id").val();
+        $("#"+carro).removeClass("card-primary");
+        $("#"+carro).addClass("card-success");
+        $("#btn"+carro).addClass("disabled");
+        veiculo_selecionado = carro
+    }    
+        
         function veiculo(id, modelo = null) {
             var veiculo = "veiculo" + id;
             if(veiculo_selecionado != null){
                 $("#"+veiculo_selecionado).removeClass("card-success");
-                $("#"+veiculo_selecionado).addClass("card-secondary");
+                $("#"+veiculo_selecionado).addClass("card-primary");
                 $("#btn"+veiculo_selecionado).removeClass("disabled");
             }
             //alert(veiculo);
-            $("#"+veiculo).removeClass("card-secondary");
+            $("#"+veiculo).removeClass("card-primary");
             $("#"+veiculo).addClass("card-success");
             $("#btn"+veiculo).addClass("disabled");
             $("#veiculo_id").val(id);            
@@ -198,8 +206,14 @@
         $("#numero").change(function() {
             $('#gmap').empty();   
             $('#gmap').append('<iframe class="mt-3" width="100%" height="100%" style="border:0;" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/place?key={{env("GOOGLE_API_KEY")}}&q='+$("#rua").val()+'+'+$("#numero").val()+'+'+$("#bairro").val()+'+'+$("#cidade").val()+'+'+$("#uf").val()+'"></iframe>');
-        });
-        
+        });  
+        $('#datetimepickerupdate').datetimepicker({
+        //daysOfWeekDisabled: [0, 6],
+        inline: true,
+        sideBySide: true,
+        defaultDate: "{{date('m/d/Y H:i:s', strtotime($solicitacao->dt_entrega))}}",
+        });  
+    console.log( "{{date('m/d/Y H:i:s', strtotime($solicitacao->dt_entrega))}} {{$solicitacao->dt_entrega}}" );
     </script>
     
 @stop

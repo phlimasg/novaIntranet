@@ -18,6 +18,8 @@ class Utilizacao extends Model
         'km_inicial',
         'km_final',
         'km_percorrido',
+        'km_estimado',
+        'tempo_estimado',
         'cep',
         'rua',
         'numero',
@@ -41,4 +43,5 @@ class Utilizacao extends Model
     {
         return $this->hasOne(Veiculo::class,'id','veiculo_id');
     }
+    
 }

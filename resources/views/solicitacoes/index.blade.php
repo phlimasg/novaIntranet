@@ -19,10 +19,11 @@
 @section('content')
 <div class="row">
     <div class="col-md-12">
-        <div class="card card-secondary">
-          <div class="card-header">
+        <div class="card">
+          <div class="card-header bg-secondary">
             <h3 class="card-title">Listagens de solicitações</h3>
             <div class="card-tools">
+                {{ $solicitacoes->links() }}
             </div>
           </div>
           <!-- /.card-header -->
@@ -31,64 +32,86 @@
               <thead>
                 <tr>                  
                   <th>Motivo</th>
-                  <th>Status</th>
-                  <th>Usuário</th>
+                  <th>Distância</th>
+                  <th>Tempo estimado</th>
                   <th style="width: 150px">Entregar até</th>
+                  <th>Status</th>
+                  <th>Solicitado por:</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                   @forelse ($solicitacoes as $i)
-                    <tr data-widget="expandable-table" aria-expanded="false">                        
+                    <tr data-widget="expandable-table" aria-expanded="false" onclick="carregaMap({{$i->id}})">                        
                         <td>{{$i->motivo}}</td>
+                        <td>{{number_format(floatval($i->km_estimado/1000),1)}} km</td>
+
+                        <td>{{gmdate("H:i:s", $i->tempo_estimado)}}</td>
+                        
+                        <td>{{date('d/m/Y H:i',strtotime($i->dt_entrega))}}</td>
                         <td>{{$i->status}}</td>
                         <td>{{$i->getUser->name}}</td>
-                        <td>{{date('d/m/Y H:i',strtotime($i->created_at))}}</td>
+                        <td><a href="{{ route('solicitacoes.edit', ['solicitaco'=>$i->id]) }}" class="btn btn-primary btn-flat"><i class="fa fa-pen"></i> Editar</a></td>
                     </tr>
-                    <tr class="expandable-body">
-                        <td colspan="5" class="bg-secondary">
-                          <div class="row">
-                                <div class="col-md-2">
-                                    <label for="">Saída:</label>
-                                    <p>{{!empty($i->dt_hora_saida)??date('d/m/Y H:i',strtotime($i->dt_hora_saida))}}</p>
+                    <tr class="expandable-body" >
+                        <td colspan="7" class="bg-secondary">
+                            <div class="row ">
+                              <div class="col-md-4 p-2 bg-dark">
+                                <div class="row ">
+                                    <div class="col-md-6">
+                                        <img src="{{url("storage/{$i->veiculo->img_url}")}}" alt="{{$i->veiculo->modelo}}" srcset="" class="img-fluid">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="">Veículo:</label>
+                                        <p>{{$i->veiculo->modelo}}</p>
+                                    </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <label for="">Retorno:</label>
-                                    <p>{{!empty($i->dt_hora_retorno)??date('d/m/Y H:i',strtotime($i->dt_hora_retorno))}}</p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <a href="{{ route('solicitacoes.edit', ['solicitaco'=>$i->id]) }}" class="btn btn-success btn-flat btn-block">Alterar Veículo</a>
+                                    </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <label for="">KM de Saída:</label>
-                                    <p>{{$i->km_inicial}}</p>
-                                </div>
-                                <div class="col-md-2">
-                                    <label for="">KM de Volta:</label>
-                                    <p>{{$i->km_final}}</p>
-                                </div>
-                                <div class="col-md-2">
-                                    <label for="">KM de Percorrido:</label>
-                                    <p>{{$i->percorrido}}</p>
-                                </div>
-                          </div>
-                          <div class="row">
-                              <div class="col-md-2">
-                                  <img src="{{url("storage/{$i->veiculo->img_url}")}}" alt="{{$i->veiculo->modelo}}" srcset="" class="img-fluid">
                               </div>
-                              <div class="col-md-2">
-                                  <label for="">Veículo:</label>
-                                  <p>{{$i->veiculo->modelo}}</p>
-                              </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <label for="">Saída:</label>
+                                            <p>{{!empty($i->dt_hora_saida)??date('d/m/Y H:i',strtotime($i->dt_hora_saida))}}</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="">Retorno:</label>
+                                            <p>{{!empty($i->dt_hora_retorno)??date('d/m/Y H:i',strtotime($i->dt_hora_retorno))}}</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="">KM de Saída:</label>
+                                            <p>{{$i->km_inicial}}</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="">KM de Volta:</label>
+                                            <p>{{$i->km_final}}</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="">KM de Percorrido:</label>
+                                            <p>{{$i->percorrido}}</p>
+                                        </div>
+                                    </div>
+                                </div>
                           </div>
                           <div class="row">
                               <div class="col-md-12">
-                                <p>
-                                    {{$i->rua}}, {{$i->numero}} @isset($i->complemento) - {{$i->complemento}} @endisset  - {{$i->bairro}} - {{$i->cidade}} - {{$i->estado}}
-                                </p>
-                              </div>
-                          </div>
-                          <div class="row">
-                              <div class="col-md-12" style="height: 500px;">
-                                <!--<iframe class="mt-3" width="100%" height="100%" style="border:0;" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/place?key={{env("GOOGLE_API_KEY")}}&origin={{$i->veiculo->rua}}+{{$i->veiculo->numero}}+{{$i->veiculo->cidade}}+{{$i->veiculo->estado}}destination={{$i->rua}}+{{$i->numero}}+{{$i->bairro}}+{{$i->cidade}}+{{$i->estado}}"></iframe>-->
-                              </div>
-                          </div>
+                                  <label for="">Endereço de entrega: </label>
+                                  <p class="m-0">{{$i->rua}}, {{$i->numero}} @isset($i->complemento) - {{$i->complemento}} @endisset  - {{$i->bairro}} - {{$i->cidade}} - {{$i->estado}}</p>
+                                
+                                    <input type="hidden" name="end_partida{{$i->id}}" id="end_partida{{$i->id}}" value="{{$i->veiculo->rua}}, {{$i->veiculo->numero}} {{$i->veiculo->bairro}} {{$i->veiculo->cidade}} {{$i->veiculo->estado}}">
+                                    <input type="hidden" name="end_entrega{{$i->id}}" id="end_entrega{{$i->id}}" value="{{$i->rua}}, {{$i->numero}} {{$i->bairro}} {{$i->cidade}} {{$i->estado}}">
+                                    <div id="mapLoad{{$i->id}}" class="text-center">
+                                        <div class="spinner-border"></div>
+                                        <p>Carregando mapa. Aguarde...</p>                                    
+                                    </div>
+                                    <div class="col-md-12 mb-4 text-center" style="height: 250px; display:none" id="iframe_map{{$i->id}}"> 
+                                    </div>                                
+                                </div>
+                            </div>                            
                         </td>
                       </tr>
                   @empty
@@ -120,6 +143,26 @@
 
 @section('js') 
 <script>
+    var ids=[];
+    function carregaMap(id) {
+        //alert(id);        
+        if(this.ids.indexOf(id) == -1){
+            var origem = $('#end_partida' + id).val();
+            var destino = $('#end_entrega' + id).val();
+            var url = '<iframe class="mt-3" width="100%" height="100%" style="border:0;" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/directions?key={{env("GOOGLE_API_KEY")}}&origin='+origem+'&destination='+destino+'"></iframe>';
+            var iframe = $('#iframe_map' + id);  
+            //https://www.google.com/maps/embed/v1/place?key={{env("GOOGLE_API_KEY")}}&origin={{$i->veiculo->rua}}+{{$i->veiculo->numero}}+{{$i->veiculo->cidade}}+{{$i->veiculo->estado}}destination={{$i->rua}}+{{$i->numero}}+{{$i->bairro}}+{{$i->cidade}}+{{$i->estado}}  
+            
+            iframe.append(url);   
+            setTimeout(function(){
+                $('#mapLoad'+id).hide(500);
+                $('#iframe_map' + id).show(1000);
+            }, 2000);
+            this.ids.push(id);
+        }
+        console.log(this.ids);
+    }
+        
   /*$('#myTable').DataTable({
     "searching": false,
     "order": [],

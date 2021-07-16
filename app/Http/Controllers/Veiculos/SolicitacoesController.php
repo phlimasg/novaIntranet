@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Veiculos;
 
 use App\Http\Controllers\Controller;
+use App\Model\HereMaps;
 use App\Model\Utilizacao;
 use App\Model\Veiculo;
 use App\User;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,13 +19,27 @@ class SolicitacoesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        
+    {   
+        //$maps = new HereMaps("Rua Duarte Coelho, 130 Jardim Catarina");
+        //$route = $maps->getTimeRoute($maps->geo,"-22.89704,-43.10657");
+        //dd($maps->lng,$maps->lat, $route);
         $solicitacoes = Utilizacao::where('status','<>','Aguardando Coordenador')
         ->orderBy('updated_at','desc')
         ->orderBy('status','desc')
         ->limit('1000')
-        ->get();                        
+        ->paginate(10);
+        /*
+        foreach($solicitacoes as $i){
+            $geoDestination = new HereMaps("{$i->rua}, {$i->numero} {$i->bairro} {$i->cidade} {$i->estado}");
+            $geoOrigin = new HereMaps("{$i->veiculo->rua}, {$i->veiculo->numero} {$i->veiculo->bairro} {$i->veiculo->cidade} {$i->veiculo->estado}");
+            //dd("{$i->veiculo->rua}, {$i->veiculo->numero} {$i->veiculo->bairro} {$i->veiculo->cidade} {$i->veiculo->estado}",$geoOrigin->geo);
+            $rota = $geoOrigin->getTimeRoute($geoOrigin->geo,$geoDestination->geo);
+            $i->tempo_estimado = $rota->baseDuration;
+            $i->km_estimado = $rota->distance;
+            $i->save();
+            //dd($rota->duration,$i);
+            //break;
+        }*/
         
         return view('solicitacoes.index',[
             'solicitacoes' => $solicitacoes,
@@ -69,8 +85,12 @@ class SolicitacoesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {
-        //
+    {        
+        return view('solicitacoes.edit',[
+            'solicitacao' => Utilizacao::find($id),
+            'veiculos' => Veiculo::get(),
+        ]);
+        
     }
 
     /**
