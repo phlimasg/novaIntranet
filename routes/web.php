@@ -30,7 +30,7 @@ Route::middleware('auth')->group(function(){
         Route::resource('veiculos', 'Veiculos\VeiculosController');
         Route::resource('coordenador', 'Veiculos\CoordenadorController');
         Route::resource('motoristas', 'Veiculos\MotoristaController');
-        Route::post('solicitacoes/search', 'Veiculos\SolicitacoesController@search')->name('solicitacoes.search');
+        Route::any('solicitacoes/search', 'Veiculos\SolicitacoesController@search')->name('solicitacoes.search');
         Route::resource('solicitacoes', 'Veiculos\SolicitacoesController');
         Route::resource('usuarios', 'Veiculos\UsuariosController');
     });

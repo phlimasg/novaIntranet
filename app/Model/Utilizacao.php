@@ -30,6 +30,7 @@ class Utilizacao extends Model
         'endereco',
         'coordenador_email',
         'status',
+        'observacao_recusado',
         'token',
         'motorista_id',
         'veiculo_id',        

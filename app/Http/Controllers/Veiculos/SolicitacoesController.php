@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Veiculos;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SolicitacaoStatusMail;
 use App\Model\HereMaps;
 use App\Model\Utilizacao;
 use App\Model\Veiculo;
@@ -10,6 +11,7 @@ use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class SolicitacoesController extends Controller
 {
@@ -23,23 +25,29 @@ class SolicitacoesController extends Controller
         //$maps = new HereMaps("Rua Duarte Coelho, 130 Jardim Catarina");
         //$route = $maps->getTimeRoute($maps->geo,"-22.89704,-43.10657");
         //dd($maps->lng,$maps->lat, $route);
-        $solicitacoes = Utilizacao::where('status','<>','Aguardando Coordenador')
+        $solicitacoes = Utilizacao::where('status','Solicitado')
         ->orderBy('updated_at','desc')
         ->orderBy('status','desc')
         ->limit('1000')
         ->paginate(10);
-        /*
+        
         foreach($solicitacoes as $i){
-            $geoDestination = new HereMaps("{$i->rua}, {$i->numero} {$i->bairro} {$i->cidade} {$i->estado}");
-            $geoOrigin = new HereMaps("{$i->veiculo->rua}, {$i->veiculo->numero} {$i->veiculo->bairro} {$i->veiculo->cidade} {$i->veiculo->estado}");
-            //dd("{$i->veiculo->rua}, {$i->veiculo->numero} {$i->veiculo->bairro} {$i->veiculo->cidade} {$i->veiculo->estado}",$geoOrigin->geo);
-            $rota = $geoOrigin->getTimeRoute($geoOrigin->geo,$geoDestination->geo);
-            $i->tempo_estimado = $rota->baseDuration;
-            $i->km_estimado = $rota->distance;
-            $i->save();
+            if(empty($i->tempo_estimado)){
+                $geoDestination = new HereMaps("{$i->rua}, {$i->numero} {$i->bairro} {$i->cidade} {$i->estado} {$i->cep}");
+                $geoOrigin = new HereMaps("{$i->veiculo->rua}, {$i->veiculo->numero} {$i->veiculo->bairro} {$i->veiculo->cidade} {$i->veiculo->estado}");
+                //dd("{$i->veiculo->rua}, {$i->veiculo->numero} {$i->veiculo->bairro} {$i->veiculo->cidade} {$i->veiculo->estado}",$geoOrigin->geo);
+                //dd($geoOrigin->geo,$geoDestination->geo,$i, $geoOrigin,$geoDestination);
+                $rota = $geoOrigin->getTimeRoute($geoOrigin->geo,$geoDestination->geo);
+                //dd($rota);
+                if(!empty($rota->baseDuration)){
+                    $i->tempo_estimado = $rota->baseDuration;
+                    $i->km_estimado = $rota->distance;
+                    $i->save();
+                }
+            }
             //dd($rota->duration,$i);
             //break;
-        }*/
+        }
         
         return view('solicitacoes.index',[
             'solicitacoes' => $solicitacoes,
@@ -102,7 +110,37 @@ class SolicitacoesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //dd($id);
+        $utilizacao = Utilizacao::find($id);
+        if(!empty($request->status)){
+            $utilizacao->update(
+                [
+                    'status' => $request->status,
+                    'observacao_recusado' => $request->observacao_recusado
+                ]
+            );
+            Mail::send(new SolicitacaoStatusMail($utilizacao));
+        }else{
+            $utilizacao->update([
+                "motivo" => $request->motivo,
+                "dt_entrega" =>  date('Y-m-d H:i', strtotime($request->data)),
+                "veiculo_id" => $request->veiculo_id,
+                "cep" => $request->cep,
+                "rua" => $request->rua,
+                "numero" => $request->numero,
+                "complemento" => $request->complemento,
+                "bairro" => $request->bairro,
+                "cidade" => $request->cidade,
+                "estado" => $request->estado,
+                "endereco" => $request->endereco,
+                //"coordenador_email" => $request->coordenador_email,
+                //"status" => empty($request->coordenador_email) ? 'Solicitado' : 'Aguardando Coordenador',
+                //"token" => Str::random(45),
+                //"user_id" => Auth::user()->id,    
+            ]);
+        }        
+        return redirect()->back();
+
     }
 
     /**
@@ -139,7 +177,7 @@ class SolicitacoesController extends Controller
             )  
         ->orderBy('updated_at','desc')
         ->orderBy('status','desc')      
-        ->get();
+        ->paginate(15);
 
         
         return view('solicitacoes.index',[

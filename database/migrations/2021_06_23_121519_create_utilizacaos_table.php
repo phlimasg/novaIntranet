@@ -37,6 +37,7 @@ class CreateUtilizacaosTable extends Migration
 
 
             $table->string('status');
+            $table->text('observacao_recusado');
             $table->string('token');
 
             $table->unsignedBigInteger('motorista_id')->nullable();            

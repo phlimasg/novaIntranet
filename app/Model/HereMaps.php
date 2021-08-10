@@ -24,10 +24,11 @@ class HereMaps extends Model
                     'apiKey' =>  env('HERE_API_KEY'),
                     'q' => $end
                 ],                
-            ]);  
+            ]);            
             $body = json_decode($res->getBody(0)->read(1024),true)['items'][0];
-            $this->lat = $body["access"][0]["lat"];
-            $this->lng = $body["access"][0]["lng"];
+            //dd($body["position"]["lat"]);
+            $this->lat = $body["position"]["lat"];
+            $this->lng = $body["position"]["lng"];
             $this->geo = "{$this->lat},{$this->lng}";
             //$this->distance = $body["distance"];
             //dd($body);

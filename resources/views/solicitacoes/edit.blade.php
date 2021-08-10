@@ -9,8 +9,9 @@
 
 @section('content')
 
-<form action="{{ route('controle-de-utilizacao.store') }}" method="post" id="form" >
+<form action="{{ route('solicitacoes.update', ['solicitaco'=> $solicitacao->id]) }}" method="post" id="form" >
     @csrf
+    @method('PUT')
     <div class="row">
         <div class="col-md-12" >
             <div class="card card-primary" style="">
@@ -73,8 +74,8 @@
                         </div>
                         <div class="col-md-7">
                             <label for="">Placa: </label> {{$i->placa}} <br>
-                            <label for="">Renavam: </label> {{$i->renavam}}<br>
-                            <label for="">Km: </label> {{$i->km}} <br>
+                            <!--<label for="">Renavam: </label> {{$i->renavam}}<br>
+                            <label for="">Km: </label> {{$i->km}} <br>-->
                         </div>
                     </div>
                 </div>
@@ -107,7 +108,7 @@
     <div class="row pb-5">
 
         <div class="col-md-12">
-            <button type="submit" class="btn btn-flat btn-success btn-block">Solicitar</button>
+            <button type="submit" class="btn btn-flat btn-success btn-block">Atualizar Solicitação</button>
         </div>
     </div>
     @else
@@ -148,7 +149,7 @@
                     
                   </div>
                 </div>
-              </div>
+            </div>
         </div>
         @endisset
     </form>    

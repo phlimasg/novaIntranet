@@ -51,7 +51,88 @@
                         <td>{{date('d/m/Y H:i',strtotime($i->dt_entrega))}}</td>
                         <td>{{$i->status}}</td>
                         <td>{{$i->getUser->name}}</td>
-                        <td><a href="{{ route('solicitacoes.edit', ['solicitaco'=>$i->id]) }}" class="btn btn-primary btn-flat"><i class="fa fa-pen"></i> Editar</a></td>
+                        <td>
+                            <div class="btn-group-vertical">
+                                <a href="#" data-toggle="modal" data-target="#autorizar{{$i->id}}" class="btn btn-success btn-flat"> <i class="fa fa-check"></i> Autorizar</a>
+                                <a href="{{ route('solicitacoes.edit', ['solicitaco'=>$i->id]) }}" class="btn btn-primary btn-flat"><i class="fa fa-pen"></i> Editar</a>
+                                <a href="#" data-toggle="modal" data-target="#recusar{{$i->id}}" class="btn btn-danger btn-flat"> <i class="fa fa-times"></i> Recusar</a>                                
+                            </div>
+                        </td>
+                        <!--Modal de autorização-->
+                        <div class="modal fade" id="autorizar{{$i->id}}">
+                            <form action="{{ route('solicitacoes.update', ['solicitaco'=>$i->id]) }}" method="post" onsubmit="mdLoading()">
+                                @csrf
+                                @method('PUT')
+                                <input type="text" name="status" id="" value="Autorizado" hidden>
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                              
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                  <h4 class="modal-title">Confirmação</h4>
+                                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                
+                                <!-- Modal body -->
+                                <div class="modal-body">                        
+                                   <div class="row">
+                                       <div class="col-md-12">
+                                        <p><b>Deseja autorizar a entregar?</b></p>
+                                        <p>Motivo: {{$i->motivo}}</p>                                        
+                                       </div>
+                                   </div>                                  
+                                </div>
+                                
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                  <button type="submit" class="btn btn-flat  btn-success">Confirmar Autorização</button>
+                                  <button type="button" class="btn btn-flat  btn-danger" data-dismiss="modal">Cancelar</button>
+                                </div>
+                                
+                              </div>
+                            </div>
+                            </form>
+                        </div>
+                        <!--Fim Modal de autorização-->
+
+                        <!--Modal de recusa-->
+                        <div class="modal fade" id="recusar{{$i->id}}">
+                            <form action="{{ route('solicitacoes.update', ['solicitaco'=>$i->id]) }}" method="post" onsubmit="mdLoading()">
+                                @csrf
+                                @method('PUT')
+                                <input type="text" name="status" id="" value="Recusado" hidden>
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                              
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                  <h4 class="modal-title">Confirmação</h4>
+                                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                
+                                <!-- Modal body -->
+                                <div class="modal-body">                        
+                                   <div class="row">
+                                       <div class="col-md-12">
+                                        <p><b>Deseja recusar a entrega?</b></p>
+                                        <p>Motivo: {{$i->motivo}}</p>
+                                        <label for="">Descreva o motivo da recusa. Obs.: O usuário receberá por e-mail.</label>
+                                        <textarea required name="observacao_recusado" id="" cols="30" rows="5" class="form-control"></textarea>
+                                       </div>
+                                   </div>                                  
+                                </div>
+                                
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                  <button type="submit" class="btn btn-flat  btn-danger">Recusar entrega</button>
+                                  <button type="button" class="btn btn-flat  btn-primary" data-dismiss="modal">Fechar</button>
+                                </div>
+                                
+                              </div>
+                            </div>
+                            </form>
+                        </div>
+                        <!--Fim Modal de recusa-->
                     </tr>
                     <tr class="expandable-body" >
                         <td colspan="7" class="bg-secondary">
@@ -68,7 +149,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <a href="{{ route('solicitacoes.edit', ['solicitaco'=>$i->id]) }}" class="btn btn-success btn-flat btn-block">Alterar Veículo</a>
+                                        <a href="{{ route('solicitacoes.edit', ['solicitaco'=>$i->id]) }}" class="btn btn-primary btn-flat btn-block">Alterar Veículo</a>
                                     </div>
                                 </div>
                               </div>
@@ -125,6 +206,7 @@
         </div>
       </div>
 </div>
+@include('parciais.mdLoading')
 @stop
 
 @section('css')
@@ -138,11 +220,18 @@
         .pagination{
           padding: 0px 15px 0px 0px;
         }
+        td{
+            vertical-align: middle !important; 
+        }
     </style>
 @stop
 
 @section('js') 
 <script>
+    function mdLoading() {
+        $("#modalLoading").modal("show");        
+    }
+    
     var ids=[];
     function carregaMap(id) {
         //alert(id);        

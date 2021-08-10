@@ -17,7 +17,7 @@
         </div>
         <div style="padding:10px">
             <hr>
-            <h3 align="center">Nova solicitação</h3>
+            <h3 align="center">Atualização da solicitação</h3>
             <hr>
             <br>
             <p><b>Quem solicitou: </b> {{$utilizacao->getUser->name}}</p>
@@ -25,30 +25,11 @@
             <p><b>Status: </b> {{$utilizacao->status}}</p>
             <p><b>Data para entrega até: </b>{{date('d/m/Y H:i',strtotime($utilizacao->dt_entrega))}}</p>
             <p><b>Onde será entregue: </b>{{empty($utilizacao->endereco) ? $utilizacao->rua.', '.$utilizacao->numero.' - '.$utilizacao->bairro.' - '.$utilizacao->cidade. ' - '.$utilizacao->estado : $utilizacao->endereco}}</p>
+            @if ($utilizacao->status == 'Recusado')
+                <p><b>Motivo da recusa: </b>{{$utilizacao->observacao_recusado}}</p>                
+            @endif
 
-            <div style="width: 100%; margin: 50px 0px 50px 0px;">
-                <a href="{{ url('autorizar-solicitacao/'.$utilizacao->token) }}" style="                
-                font-weight: 400;                
-                text-align: center;
-                vertical-align: middle;                
-                user-select: none;                
-                border: 1px solid transparent;
-                padding: .375rem 1rem;
-                font-size: 1rem;
-                line-height: 1.5;                
-                transition: color .15s;
-                color: #fff;
-                background-color: #28a745;
-                border-color: #28a745;
-                box-shadow: none;
-                display: block;                
-                border-radius: 0;
-                max-width:600px;
-                text-decoration: none;
-                ">
-                    Autorizar agendamento
-                </a>
-            </div>
+            
             <hr>
             <div style="text-align: center">
                 <small><b>Agendamento de veículos | La Salle - RJ</b></small>
