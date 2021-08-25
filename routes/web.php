@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function(){
         Route::any('solicitacoes/search', 'Veiculos\SolicitacoesController@search')->name('solicitacoes.search');
         Route::resource('solicitacoes', 'Veiculos\SolicitacoesController');
         Route::resource('usuarios', 'Veiculos\UsuariosController');
+        Route::resource('entregas', 'Veiculos\EntregasController');
     });
 
 });

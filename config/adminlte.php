@@ -275,7 +275,7 @@ return [
         'ADMINISTRAÇÃO',
         [
             'text' => 'Central do Entregas',
-            'url'  => 'administracao/',
+            'url'  => 'administracao/entregas',
             'icon' => 'fas fa-fw fa-route',
         ],
         [
